@@ -3,7 +3,6 @@ import pygame
 import sys
 from paddle import Paddle
 from ball import Ball
-from random import randint, random
 
 if __name__ == '__main__':
     pygame.init()
@@ -18,13 +17,13 @@ if __name__ == '__main__':
     # Player values
     player_A_score = 0
     player_B_score = 0
-    WINNING_SCORE = 10
+    VELOCITY_MULTIPLIER = 1.2
 
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("Roboto Mono", SCREEN_HEIGHT // 10)
 
     # Paddles
-    PADDLE_WIDTH, PADDLE_HEIGHT = 10, 100
+    PADDLE_WIDTH, PADDLE_HEIGHT = 10, 150
     paddle_A = Paddle(WHITE, PADDLE_WIDTH, PADDLE_HEIGHT, SCREEN_HEIGHT)
     paddle_B = Paddle(WHITE, PADDLE_WIDTH, PADDLE_HEIGHT, SCREEN_HEIGHT)
 
@@ -41,6 +40,8 @@ if __name__ == '__main__':
     all_sprites_list.add(ball)
 
     sleep(1)
+
+    scored = False
 
     while True:
         for event in pygame.event.get():
@@ -61,16 +62,20 @@ if __name__ == '__main__':
 
         scored = False
         # Ball boundary conditions
-        if ball.rect.x >= SCREEN_WIDTH - ball.rect.width:
-            player_B_score += 1
-            scored = True
-        if ball.rect.x <= 0:
+        if ball.rect.x >= SCREEN_WIDTH + 50:
             player_A_score += 1
+            scored = True
+        if ball.rect.x <= -ball.rect.width - 50:
+            player_B_score += 1
             scored = True
         if ball.rect.y > SCREEN_HEIGHT - ball.rect.height:
             ball.velocity[1] = -ball.velocity[1]
         if ball.rect.y < 0:
             ball.velocity[1] = abs(ball.velocity[1])
+
+        # Detect collisions between the ball and the paddles
+        if pygame.sprite.collide_mask(ball, paddle_A) or pygame.sprite.collide_mask(ball, paddle_B):
+            ball.bounce(VELOCITY_MULTIPLIER)
 
         all_sprites_list.update()
 
@@ -86,9 +91,9 @@ if __name__ == '__main__':
         screen.blit(score_B, (3 * SCREEN_WIDTH // 4, 50))
 
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(90)
         if scored:
             sleep(1)
-            ball.new_velocity()
             ball.rect.x = SCREEN_WIDTH // 2
             ball.rect.y = SCREEN_HEIGHT // 2
+            ball.new_velocity()

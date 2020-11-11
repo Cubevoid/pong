@@ -12,7 +12,7 @@ class Paddle(pygame.sprite.Sprite):
 
     def __init__(self, color: tuple, width: int, height: int, screen_height: int) -> None:
         super().__init__()
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([width + 50, height])
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
         self.screen_height = screen_height
